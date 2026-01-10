@@ -118,42 +118,24 @@ The model is trained end-to-end using a **multi-term objective function** design
 
 The network minimizes a weighted composite loss:
 
-$$
-\mathcal{L}_{total} =
-\mathcal{L}_{recon}
-+ \lambda_{ssim}\mathcal{L}_{ssim}
-+ \lambda_{vgg}\mathcal{L}_{perceptual}
-+ \mathcal{L}_{ev\_regularization}
-$$
+```
+L_total = L_recon + λ_ssim·L_ssim + λ_vgg·L_perceptual + L_ev_regularization
+```
 
-#### Reconstruction Loss ($\mathcal{L}_{recon}$)
-* L1 loss between the reconstructed output and ground-truth HDR target  
-* Ensures pixel-level fidelity and stable convergence  
+#### Reconstruction (L_recon)
+* L1 loss ensures pixel-level fidelity between the reconstructed output and the ground truth HDR target.
 
-#### Structural Similarity Loss ($\mathcal{L}_{ssim}$)
-* Weighted by $\lambda_{ssim} = 0.2$  
-* Maximizes SSIM to preserve structural details and textures  
-* Encourages perceptually coherent reconstructions  
+#### Structural Similarity Loss (L_ssim)
+* Weighted at 0.2, this maximizes the SSIM index to preserve structural details and texture information.
 
-#### Perceptual Loss ($\mathcal{L}_{perceptual}$)
-* Weighted by $\lambda_{vgg} = 0.05$  
-* Uses a frozen VGG-16 network  
-* Minimizes distance between high-level feature representations  
-* Aligns outputs with human visual perception  
+#### Perceptual Loss (L_perceptual)
+* Weighted at 0.05, this uses a frozen VGG-16 network to minimize the distance between high-level feature maps, aligning the output with human visual perception.
 
-#### EV Regularization Loss ($\mathcal{L}_{ev\_regularization}$)
-A custom exposure constraint loss ensuring valid and meaningful exposure brackets:
-
-* **Center Loss**  
-  * Enforces the predicted *normal* exposure to match the ground-truth EV shift  
-
-* **Ordering Loss**  
-  * Enforces monotonic ordering:  
-    $$EV_{under} < EV_{normal} < EV_{over}$$  
-
-* **Spacing Loss**  
-  * Penalizes overly narrow exposure brackets  
-  * Encourages sufficient dynamic range coverage  
+#### EV Regularization Loss( L_ev_regularization)
+A custom triplet of losses ensures the predicted exposure bracket is valid:Center Loss:
+* Enforces the "Normal" exposure to match the ground truth EV shift.
+* Ordering Loss: Enforces $EV_{under} < EV_{normal} < EV_{over}$.
+* Spacing Loss: Penalizes brackets that are too narrow, encouraging a wide dynamic range coverage.
 
 ---
 
