@@ -78,41 +78,39 @@ The system implements an end-to-end Multi-Modal Deep Neural Network that fuses s
 
 ### 1. Spatial Context Encoder (ResNet-18)
 
-Backbone: ResNet-18 (truncated, pre-trained on ImageNet).  
-Input: Single LDR preview frame (3 × 224 × 224).  
-Function: Extracts high-level semantic features (e.g., sky, shadows, complex textures) and spatial context that simple histograms cannot capture.
+*Backbone: ResNet-18 (truncated, pre-trained on ImageNet).  
+*Input: Single LDR preview frame (3 × 224 × 224).  
+*Function: Extracts high-level semantic features (e.g., sky, shadows, complex textures) and spatial context that simple histograms cannot capture.
 
 ### 2. Global Illumination Encoder (Histogram Branch)
 
-Input: 64-bin grayscale luminance histogram (normalized vector).  
-Architecture: 3-layer Multi-Layer Perceptron (MLP).  
-Function: Explicitly models the global pixel intensity distribution, allowing the network to distinguish between high-key (bright) and low-key (dark) scenes efficiently.
+*Input: 64-bin grayscale luminance histogram (normalized vector).  
+*Architecture: 3-layer Multi-Layer Perceptron (MLP).  
+*Function: Explicitly models the global pixel intensity distribution, allowing the network to distinguish between high-key (bright) and low-key (dark) scenes efficiently.
 
 ### 3. Feature Fusion & EV Regression
 
-Fusion: Concatenates the 512-dim spatial embedding (from ResNet) with the 64-dim lighting embedding (from MLP).  
-Output: A predicted Exposure Value (EV) bracket (e.g., [-2.0, 0.0, +2.0]).
+*Fusion: Concatenates the 512-dim spatial embedding (from ResNet) with the 64-dim lighting embedding (from MLP).  
+*Output: A predicted Exposure Value (EV) bracket (e.g., [-2.0, 0.0, +2.0]).
 
 ### 4. Exposure Boosting Strategy (Methodology)
 
 This revised architecture implements a novel Exposure Boosting Strategy for robust tone mapping. Unlike traditional methods that condition on a single scalar EV, the model mimics a multi-exposure bracketing workflow within the network.
 
-Multi-EV Prediction:  
-The FusionEVModule predicts three distinct exposure values: Underexposed, Normal, and Overexposed.
+*Multi-EV Prediction:  The FusionEVModule predicts three distinct exposure values: Underexposed, Normal, and Overexposed.
 
-Virtual Exposure Generation:  
-Using the input raw/sRGB image I, three virtual exposures are generated using a differentiable gain function:
-
+*Virtual Exposure Generation: Using the input raw/sRGB image I, three virtual exposures are generated using a differentiable gain function:
+```
 I_k = clamp(I × 2^(EV_k), 0, 1)
+```
 
-Deep Fusion via Stacking:  
-The three virtual images are concatenated channel-wise to form a 9-channel tensor (3 images × 3 RGB channels).
+*Deep Fusion via Stacking:  The three virtual images are concatenated channel-wise to form a 9-channel tensor (3 images × 3 RGB channels).
 
 ### 5. Boosted Reconstruction (Recon-UNet)
 
-Input: The 9-channel tensor from the boosting layer.  
-Architecture: ReconUNetV2 (Modified U-Net with skip connections).  
-Function: Allows the network to simultaneously access shadow details from the overexposed virtual view and highlight details from the underexposed virtual view, producing a final high-quality tone-mapped image.
+*Input: The 9-channel tensor from the boosting layer.  
+*Architecture: ReconUNetV2 (Modified U-Net with skip connections).  
+*Function: Allows the network to simultaneously access shadow details from the overexposed virtual view and highlight details from the underexposed virtual view, producing a final high-quality tone-mapped image.
 
 
 ## Training
