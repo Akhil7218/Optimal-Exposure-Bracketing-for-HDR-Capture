@@ -109,3 +109,84 @@ The system implements an end-to-end **Multi-Modal Deep Neural Network** that fus
 * Merges highlight, mid-tone, and shadow information  
 * Outputs a final tone-mapped, artifact-free HDR image  
 
+
+## Training
+
+The model is trained end-to-end using a **multi-term objective function** designed to jointly optimize **exposure prediction accuracy** and **HDR reconstruction quality**.
+
+### Loss Functions
+
+The network minimizes a weighted composite loss:
+
+$$
+\mathcal{L}_{total} =
+\mathcal{L}_{recon}
++ \lambda_{ssim}\mathcal{L}_{ssim}
++ \lambda_{vgg}\mathcal{L}_{perceptual}
++ \mathcal{L}_{ev\_regularization}
+$$
+
+#### Reconstruction Loss ($\mathcal{L}_{recon}$)
+* L1 loss between the reconstructed output and ground-truth HDR target  
+* Ensures pixel-level fidelity and stable convergence  
+
+#### Structural Similarity Loss ($\mathcal{L}_{ssim}$)
+* Weighted by $\lambda_{ssim} = 0.2$  
+* Maximizes SSIM to preserve structural details and textures  
+* Encourages perceptually coherent reconstructions  
+
+#### Perceptual Loss ($\mathcal{L}_{perceptual}$)
+* Weighted by $\lambda_{vgg} = 0.05$  
+* Uses a frozen VGG-16 network  
+* Minimizes distance between high-level feature representations  
+* Aligns outputs with human visual perception  
+
+#### EV Regularization Loss ($\mathcal{L}_{ev\_regularization}$)
+A custom exposure constraint loss ensuring valid and meaningful exposure brackets:
+
+* **Center Loss**  
+  * Enforces the predicted *normal* exposure to match the ground-truth EV shift  
+
+* **Ordering Loss**  
+  * Enforces monotonic ordering:  
+    $$EV_{under} < EV_{normal} < EV_{over}$$  
+
+* **Spacing Loss**  
+  * Penalizes overly narrow exposure brackets  
+  * Encourages sufficient dynamic range coverage  
+
+---
+
+### Hyperparameters
+
+* Optimizer: **AdamW** (`weight_decay = 1e-5`)  
+* Learning Rate: `1 × 10⁻⁴`  
+* Scheduler: **ReduceLROnPlateau**  
+  * Factor: `0.5`  
+  * Patience: `3`  
+* Batch Size: `16`  
+* Epochs: `40`  
+* Gradient Clipping:  
+  * L2 norm capped at `1.0` to prevent exploding gradients  
+
+---
+
+### Training Loop
+
+* **Forward Pass**  
+  * Predicts EV triplet  
+  * Synthesizes virtual exposures via boosting layer  
+  * Reconstructs HDR output using Recon-UNet  
+
+* **Validation**  
+  * Executed after every epoch  
+  * Tracks PSNR, SSIM, and total loss  
+
+* **Checkpointing**  
+  * Best model saved when validation loss improves  
+  * Routine checkpoints saved every 5 epochs  
+
+* **Logging**  
+  * Training and validation metrics logged to `train_log.csv`  
+  * Enables post-training analysis and visualization  
+
