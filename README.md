@@ -70,3 +70,42 @@ The exposure shift between target and input is computed using:
 EV ≈ log2( (μ_target + ε) / (μ_input + ε) )
 ```
 Where `μ` represents the mean grayscale intensity and `ε` is a small stability constant.
+
+## Architecture
+<img width="1266" height="534" alt="image" src="pipeline.png" />
+
+The system implements an end-to-end **Multi-Modal Deep Neural Network** that fuses spatial and statistical information to predict optimal exposure brackets and reconstruct a high-dynamic-range (HDR) image from a single LDR snapshot.
+
+### Spatial Context Encoder (ResNet-18)
+* Backbone: ResNet-18 (truncated, ImageNet pre-trained)  
+* Input: Single LDR preview frame (3 × 224 × 224)  
+* Extracts high-level semantic and texture features  
+* Captures global scene context such as sky regions, shadows, and complex structures  
+
+### Global Illumination Encoder (Histogram Branch)
+* Computes a 64-bin grayscale luminance histogram from the input image  
+* Processed using a dedicated 3-layer Multi-Layer Perceptron (MLP)  
+* Explicitly models global pixel intensity distribution  
+* Enables differentiation between high-key and low-key scenes  
+
+### Feature Fusion & EV Regression Head
+* Concatenates:
+  * 512-dim spatial embedding (from ResNet-18)  
+  * 64-dim lighting embedding (from histogram MLP)  
+* Fused features are passed through a fully connected EV regression head  
+* Predicts an optimal Exposure Value (EV) bracket  
+* Output: EV triplet (e.g., [-2.0, 0.0, +2.0])  
+
+### Differentiable Boosting Layer (Virtual Camera)
+* Acts as a virtual exposure synthesis module inside the network  
+* Applies predicted EVs using the physical exposure formulation:  
+  `I_virtual = I_input × 2^EV`  
+* Generates synthetic underexposed, normal, and overexposed images  
+* Eliminates the need for capturing multiple physical exposures  
+
+### HDR Reconstruction Network (Recon-UNet)
+* Input: Channel-wise concatenation of virtual exposures (9 × H × W)  
+* Architecture: Modified U-Net with skip connections  
+* Merges highlight, mid-tone, and shadow information  
+* Outputs a final tone-mapped, artifact-free HDR image  
+
