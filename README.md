@@ -159,4 +159,58 @@ A custom triplet of losses ensures the predicted exposure bracket is valid:Cente
 * Logging: Metrics are automatically logged to train_log.csv for analysis.  
 
 
+## Implementation
+
+The implementation is structured as a modular PyTorch workflow, handling data ingestion, dual-branch modeling, and boosted reconstruction.
+
+* **Data Loading:**  
+
+The `ToneMappingDataset` class manages the pairing of Raw/LDR inputs with expert HDR targets.
+
+* Preprocessing:** Resizes images to `224 × 224` and normalizes pixel values to `[0, 1]`.
+* Histogram Calculation:** Computes a 64-bin intensity histogram on-the-fly for the statistical branch.
+* Tensor Inputs:**
+  * Image:** `[B, 3, 224, 224]` (RGB)
+  * Histogram:** `[B, 64]` (Normalized Vector)
+  * Target:** `[B, 3, 224, 224]` (Ground Truth)
+
+* **Model Definition:**  
+
+The core logic is encapsulated in `FullToneMapModelBoosting`:
+
+* Fusion Module:** Integrates the ResNet spatial encoder and MLP histogram encoder to predict EV brackets.
+* Virtual Camera Layer:** Differentiably applies predicted EVs to the input tensor, creating a stack of 3 virtual exposures (Under, Mid, Over).
+* Reconstruction:** `ReconUNetV2` takes the 9-channel stacked input and produces the final 3-channel HDR output.
+
+
+
+* **Training Loop:**  
+
+The training is governed by the `train_v2` function:
+
+* Process:** Iterates through epochs, calculating the composite loss terms (L1, SSIM, VGG, EV Constraints) and updating weights via backpropagation.
+* Validation:** Runs at the end of every epoch to evaluate performance on the validation set.
+* Checkpointing:** Automatically saves the model state (`.pth`) to `v2_checkpoints/` whenever validation loss improves.
+
+
+
+### 4. Outputs & Visualization
+
+The repository automatically generates a structured `output/` directory (mapped to `v2_samples/` and `v2_checkpoints/` in the code) containing logs and visual artifacts to monitor training progression.
+
+* **`v2_checkpoints/`**
+  * `train_log.csv`: Tracks `train_loss` and `val_loss` per epoch.
+  * `model_epochXXX.pth`: Saved model weights.
+
+* **`v2_samples/` (Training Artifacts)**
+  * **Reconstruction Triplets:** Visual comparison saved every epoch:  
+    `[ Input LDR | Predicted HDR | Ground Truth ]`
+  * **Virtual Bracket Previews:** Visualizations of the internally synthesized exposures:  
+    `[ Virtual Under | Virtual Mid | Virtual Over ]`  
+    *These show exactly what the U-Net "sees" before merging them.*
+
+* **`test_samples/` (Final Evaluation)**
+  * Contains predictions on unseen test data to verify generalization capability.
+
+
 
