@@ -184,7 +184,7 @@ The core logic is encapsulated in `FullToneMapModelBoosting`:
 
 
 
-* **Training Loop:**  
+### 3. Training Loop
 
 The training is governed by the `train_v2` function:
 
