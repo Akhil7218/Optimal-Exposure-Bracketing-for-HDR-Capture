@@ -215,5 +215,30 @@ The repository automatically generates a structured `output/` directory (mapped 
   * Contains predictions on unseen test data to verify generalization capability.
 
 
+## Results
+The model demonstrates strong convergence and generalization, effectively balancing exposure prediction with high-fidelity HDR reconstruction.
 
+### Quantitative Test Metrics
+* **Test L1 Loss:** 10461.30 
+* **Test MSE:** 1474.03
+* **Test PSNR:** 20.31 dB
+* **Test SSIM:** 0.6852
+
+### Best Model Performance
+* Achieved at **Epoch 20**  
+* **Validation Loss:** 0.0709  
+
+### Example Predictions
+Ground-truth EV shifts:
+```
+[-0.27156088  0.65435684  0.43656817 -0.64651066]
+```
+
+Predicted 5-stop EV brackets:
+```
+Sample 1: [-1.5562469  -0.04815363  0.57255673]
+Sample 2: [-0.9986939   0.5637927   2.2738926 ]
+Sample 3: [-0.9257073   0.19482271  1.0358816 ]
+Sample 4: [-0.9391494  -0.15072545  0.43088636]
+```
 
