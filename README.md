@@ -137,7 +137,6 @@ A custom triplet of losses ensures the predicted exposure bracket is valid:Cente
 * Ordering Loss: Enforces $EV_{under} < EV_{normal} < EV_{over}$.
 * Spacing Loss: Penalizes brackets that are too narrow, encouraging a wide dynamic range coverage.
 
----
 
 ### Hyperparameters
 
@@ -151,24 +150,13 @@ A custom triplet of losses ensures the predicted exposure bracket is valid:Cente
 * Gradient Clipping:  
   * L2 norm capped at `1.0` to prevent exploding gradients  
 
----
+
 
 ### Training Loop
+* Forward Pass: The model predicts 3 EVs, synthesizes virtual exposures, and reconstructs the image.
+* Validation: Runs after every epoch to track PSNR, SSIM, and Loss.
+* Checkpointing: The "Best Model" is saved whenever validation loss decreases. Routine checkpoints are saved every 5 epochs.
+* Logging: Metrics are automatically logged to train_log.csv for analysis.  
 
-* **Forward Pass**  
-  * Predicts EV triplet  
-  * Synthesizes virtual exposures via boosting layer  
-  * Reconstructs HDR output using Recon-UNet  
 
-* **Validation**  
-  * Executed after every epoch  
-  * Tracks PSNR, SSIM, and total loss  
-
-* **Checkpointing**  
-  * Best model saved when validation loss improves  
-  * Routine checkpoints saved every 5 epochs  
-
-* **Logging**  
-  * Training and validation metrics logged to `train_log.csv`  
-  * Enables post-training analysis and visualization  
 
