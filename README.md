@@ -234,7 +234,7 @@ Ground-truth EV shifts:
 [-0.27156088  0.65435684  0.43656817 -0.64651066]
 ```
 
-Predicted 5-stop EV brackets:
+Predicted 3-stop EV brackets:
 ```
 Sample 1: [-1.5562469  -0.04815363  0.57255673]
 Sample 2: [-0.9986939   0.5637927   2.2738926 ]
