@@ -174,7 +174,7 @@ The `ToneMappingDataset` class manages the pairing of Raw/LDR inputs with expert
   * **Histogram:** `[B, 64]` (Normalized Vector)
   * **Target:** `[B, 3, 224, 224]` (Ground Truth)
 
----
+
 
 ### 2. Model Definition
 
@@ -184,7 +184,7 @@ The core logic is encapsulated in `FullToneMapModelBoosting`:
 * **Virtual Camera Layer:** Differentiably applies predicted EVs to the input tensor, creating a stack of 3 virtual exposures (Under, Mid, Over).
 * **Reconstruction:** `ReconUNetV2` takes the 9-channel stacked input and produces the final 3-channel HDR output.
 
----
+
 
 ### 3. Training Loop
 
@@ -194,7 +194,7 @@ The training is governed by the `train_v2` function:
 * **Validation:** Runs at the end of every epoch to evaluate performance on the validation set.
 * **Checkpointing:** Automatically saves the model state (`.pth`) to `v2_checkpoints/` whenever validation loss improves.
 
----
+
 
 ### 4. Outputs & Visualization
 
