@@ -20,3 +20,53 @@ The model fuses spatial data (RGB image) with statistical data (Luminance Histog
 Goal:To automate professional-grade exposure bracketing for mobile and embedded imaging systems, ensuring maximum dynamic range coverage with zero user intervention.
 
 The complete workflow is implemented in a single Jupyter notebook (smg_project_nb.ipynb) designed for GPU acceleration.
+
+## Prerequisites
+To run the project, the following Python libraries are required:
+
+* **Python 3.x**
+* **PyTorch & Torchvision** (Deep Learning framework)
+* **OpenCV (cv2)** (Image processing)
+* **NumPy** (Numerical operations)
+* **Pandas** (Data handling)
+* **Matplotlib** (Visualization)
+* **Scikit-learn** (Data splitting and metrics)
+* **Pillow (PIL)** (Image loading)
+* * **Tqdm (Progress tracking)
+ 
+## Dataset
+The project utilizes two complementary datasets to ensure robustness across different scenes and lighting conditions:
+
+### MIT-Adobe FiveK
+* Inputs: RAW/low-quality images located in `raw/`
+* Targets: Expert-retouched outputs located in `e/`
+* Pairing: Matched by filenames
+
+### LVZ-HDR Tone-Mapping Benchmark
+* Inputs: Tone-mapped LDR outputs from TMO-Net
+* Targets: Original HDR images
+* Pairing: Matched by basenames across `.png`, `.jpg`, `.jpeg`
+
+### Pair Construction & EV Labels
+* Approximately **2400 Adobe** images and **1600 LVZ** images are sampled
+* Dataset split:
+  * 80% Train
+  * 10% Validation
+  * 10% Test
+* Paired data exported to:
+  * `train_pairs.csv`
+  * `val_pairs.csv`
+  * `test_pairs.csv`
+* Each row stores:
+  * `input_path`
+  * `target_path`
+  * `dataset`
+  * `ev_label`
+
+### EV Label Computation
+The exposure shift between target and input is computed using:
+
+```
+EV ≈ log2( (μ_target + ε) / (μ_input + ε) )
+```
+Where `μ` represents the mean grayscale intensity and `ε` is a small stability constant.
