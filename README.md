@@ -219,10 +219,13 @@ The repository automatically generates a structured `output/` directory (mapped 
 
 ### Sample 1 
 <img width="1266" height="534" alt="image" src="outputs/Sample1.png" /> 
+
 ### Sample 2 
 <img width="1266" height="534" alt="image" src="outputs/Sample2.png" />
+
 ### Sample 3 
 <img width="1266" height="534" alt="image" src="outputs/Sample3.png" />
+
 ### Sample 4 
 <img width="1266" height="534" alt="image" src="outputs/Sample4.png" /> 
 
