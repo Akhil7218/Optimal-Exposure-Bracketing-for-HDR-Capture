@@ -216,13 +216,13 @@ The repository automatically generates a structured `output/` directory (mapped 
 
 * **`test_samples/` (Final Evaluation)**
   * Contains predictions on unseen test data to verify generalization capability.
-* **Sample 1 
+Sample 1 
 <img width="1266" height="534" alt="image" src="outputs/Sample1.png" /> 
-* **Sample 2 
+Sample 2 
 <img width="1266" height="534" alt="image" src="outputs/Sample2.png" />
-* **Sample 3 
+Sample 3 
 <img width="1266" height="534" alt="image" src="outputs/Sample3.png" />
-* **Sample 4 
+Sample 4 
 <img width="1266" height="534" alt="image" src="outputs/Sample4.png" /> 
 
 
