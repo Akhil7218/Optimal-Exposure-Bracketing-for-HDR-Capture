@@ -72,7 +72,7 @@ EV ≈ log2( (μ_target + ε) / (μ_input + ε) )
 Where `μ` represents the mean grayscale intensity and `ε` is a small stability constant.
 
 ## Architecture
-<img width="1266" height="534" alt="image" src="pipeline.png" />
+<img width="1266" height="534" alt="image" src="outputs/arc.png" />
 
 The system implements an end-to-end Multi-Modal Deep Neural Network that fuses spatial and statistical data. It predicts optimal exposure brackets and internally synthesizes them to reconstruct a high-dynamic-range (HDR) output from a single snapshot.
 
